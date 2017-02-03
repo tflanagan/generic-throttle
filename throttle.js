@@ -28,7 +28,6 @@ class Throttle {
 
 		this._tick = undefined;
 		this._nRequests = 0;
-		this._nId = 0;
 		this._times = [];
 		this._pending = [];
 
