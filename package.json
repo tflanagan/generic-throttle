@@ -1,6 +1,6 @@
 {
   "name": "generic-throttle",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A lightweight, flexible promise based throttle class perfect for any rate or concurrency limiting need",
   "keywords": [
     "throttle",
@@ -31,7 +31,10 @@
   "contributors": [
     "Tristian Flanagan <contact@tristianflanagan.com> (https://github.com/tflanagan)"
   ],
-  "main": "throttle.js",
+  "main": "dist/throttle.js",
+  "scripts": {
+    "build": "babel src/throttle.js -o dist/throttle.js --presets=es2015,react && browserify dist/throttle.js > dist/throttle.browserify.js && minify dist/throttle.browserify.js > dist/throttle.browserify.min.js && rm dist/throttle.browserify.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/tflanagan/generic-throttle.git"
@@ -39,5 +42,12 @@
   "dependencies": {
     "bluebird": "^3.4.7"
   },
-  "git": "git://github.com/tflanagan/generic-throttle.git"
+  "git": "git://github.com/tflanagan/generic-throttle.git",
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "browserify": "^14.3.0",
+    "minify": "^2.0.13"
+  }
 }

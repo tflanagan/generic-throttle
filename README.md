@@ -13,6 +13,9 @@ $ npm install generic-throttle
 
 # Latest Commit
 $ npm install tflanagan/generic-throttle
+
+# Also available via Bower
+$ bower install generic-throttle
 ```
 
 Rate Limit Example
