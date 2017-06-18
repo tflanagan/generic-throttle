@@ -108,6 +108,12 @@ class Throttle {
 		});
 	}
 
+	flush(){
+		return Promise.map(this._pending.splice(0, this._pending.length), (pending) => {
+			return pending.resolve();
+		});
+	}
+
 }
 
 /* Export Module */

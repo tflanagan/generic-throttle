@@ -1,6 +1,6 @@
 {
   "name": "generic-throttle",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A lightweight, flexible promise based throttle class perfect for any rate or concurrency limiting need",
   "keywords": [
     "throttle",
