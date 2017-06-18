@@ -121,6 +121,13 @@ var Throttle = function () {
 				return Promise.resolve();
 			});
 		}
+	}, {
+		key: 'flush',
+		value: function flush() {
+			return Promise.map(this._pending.splice(0, this._pending.length), function (pending) {
+				return pending.resolve();
+			});
+		}
 	}]);
 
 	return Throttle;
