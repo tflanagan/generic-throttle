@@ -108,6 +108,10 @@ class Throttle {
 		});
 	}
 
+	clear(){
+		return this._pending.splice(0, this._pending.length);
+	}
+
 	flush(){
 		return Promise.map(this._pending.splice(0, this._pending.length), (pending) => {
 			return pending.resolve();

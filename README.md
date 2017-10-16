@@ -91,6 +91,7 @@ Documentation
 -------------
 ##### new Throttle(requestsPerPeriod[, periodLength = -1[, errorOnLimit = false]])
 ##### throttle.acquire([concurrentFn])
+##### throttle.clear()
 ##### throttle.flush()
 
 License
