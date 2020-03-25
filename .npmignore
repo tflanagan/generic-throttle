@@ -1,4 +1,6 @@
-dist/throttle.browserify.min.js
+docs/
 src/
-.gitignore
-bower.json
+tsconfig.json
+ava.config.js
+.env
+.env.example

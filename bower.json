@@ -20,10 +20,12 @@
   ],
   "ignore": [
     "**/.*",
-    "documentation",
     "node_modules",
-    "src/throttle.js",
-    "dist/throttle.js"
+    "docs",
+    "src",
+    "dist/tests",
+    "dist/throttle.js",
+    "dist/throttle.d.ts"
   ],
   "repository": {
     "type": "git",
