@@ -20,6 +20,11 @@ $ npm install tflanagan/generic-throttle
 $ bower install generic-throttle
 ```
 
+Documentation
+-------------
+
+[TypeDoc Documentation](https://tflanagan.github.io/generic-throttle/)
+
 Rate Limit Example
 ------------------
 This Throttle instance will rate limit the throttle to a maximum of 10 requests
