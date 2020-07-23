@@ -1,8 +1,5 @@
 'use strict';
 
-/* Dependencies */
-import { Promise } from 'bluebird';
-
 /* Types */
 type AcquireCallback = (resolve: (thenableOrResult?: any) => void, reject: (error?: any) => void) => any;
 
@@ -23,34 +20,6 @@ export class Throttle {
 		public errorOnLimit: boolean = false
 	){
 		return this;
-	}
-
-	private _acquire() {
-		return new Promise((resolve, reject) => {
-			if(this.periodLength === -1){
-				if(this._nRequests < this.requestsPerPeriod || this.requestsPerPeriod === -1){
-					++this._nRequests
-
-					return resolve();
-				}
-			}else
-			if(this._times.length < this.requestsPerPeriod){
-				this._times.push(Date.now());
-
-				return resolve();
-			}
-
-			if(this.errorOnLimit){
-				return reject(new Error('Throttle Maximum Reached'));
-			}
-
-			this._pending.push({
-				resolve: resolve,
-				reject: reject
-			});
-		}).disposer(() => {
-			this._testTick();
-		});
 	}
 
 	private _testTick() {
@@ -92,10 +61,35 @@ export class Throttle {
 	/**
 	 * Acquire position in queue
 	 */
-	acquire(fn: AcquireCallback){
-		return Promise.using(this._acquire(), () => {
-			return new Promise(fn);
-		});
+	async acquire(fn: AcquireCallback) {
+		try {
+			await new Promise((resolve, reject) => {
+				if(this.periodLength === -1){
+					if(this._nRequests < this.requestsPerPeriod || this.requestsPerPeriod === -1){
+						++this._nRequests
+
+						return resolve();
+					}
+				}else
+				if(this._times.length < this.requestsPerPeriod){
+					this._times.push(Date.now());
+
+					return resolve();
+				}
+
+				if(this.errorOnLimit){
+					return reject(new Error('Throttle Maximum Reached'));
+				}
+
+				this._pending.push({
+					resolve: resolve,
+					reject: reject
+				});
+			});
+			return await new Promise(fn);
+	 	} finally {
+			this._testTick();
+		}
 	}
 
 	/**
@@ -111,9 +105,9 @@ export class Throttle {
 	 * Executes entire pending queue at once
 	 */
 	flush(){
-		return Promise.map(this._pending.splice(0, this._pending.length), (pending) => {
-			return pending.resolve();
-		});
+		return Promise.all(this._pending.splice(0, this._pending.length)
+			.map(pending => pending.resolve())
+		);
 	}
 
 }
