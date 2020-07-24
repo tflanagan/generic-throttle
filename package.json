@@ -39,8 +39,7 @@
     "reinstall-dev": "rm -rf node_modules/ && npm install && npm install --dev",
     "build": "npx tsc && browserify ./dist/throttle.js > ./dist/throttle.browserify.js && minify ./dist/throttle.browserify.js > ./dist/throttle.browserify.min.js && rm ./dist/throttle.browserify.js",
     "docs": "npx typedoc src/throttle.ts",
-    "test": "npx ava",
-    "prepublishOnly": "npm run cleanup && npm run build && npm run test"
+    "test": "npx ava"
   },
   "git": "git://github.com/tflanagan/generic-throttle.git",
   "repository": {
