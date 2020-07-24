@@ -126,7 +126,7 @@ export class Throttle {
 	 * });
 	 * ```
 	 */
-	async acquire(fn: Function) {
+	async acquire(fn: Function): Promise<any> {
 		return new this.PromiseImplementation(async (resolve, reject) => {
 			this._pending.push({
 				resolve: resolve,
