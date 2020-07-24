@@ -4,25 +4,34 @@
 import test from 'ava';
 import { Throttle } from '../throttle';
 
+/* Functions */
+const delay = (time: number = 2000) => {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve();
+		}, time);
+	});
+};
+
 /* Test */
 test('limit throttle to 10 executions per 30 seconds', async (t) => {
 	const throttle = new Throttle(10, 30000, false);
 	let batchStart = Date.now();
 
 	const async = async (i: number) => {
-		await throttle.acquire((resolve, reject) => {
+		await throttle.acquire(() => {
 			if(i !== 0 && i % 10 === 0){
 				const now = Date.now();
 				const diff = now - batchStart;
 
 				if(diff < 30000){
-					return reject(new Error('Max executions exceeded: ' + diff));
+					throw new Error('Max executions exceeded: ' + diff);
 				}
 
 				batchStart = now;
 			}
 
-			resolve();
+			return;
 		});
 	};
 
@@ -43,8 +52,10 @@ test('fail if more than 10 executions per 30 seconds', async (t) => {
 	const throttle = new Throttle(10, 30000, true);
 
 	const async = async () => {
-		await throttle.acquire((resolve) => {
-			resolve();
+		await throttle.acquire(async () => {
+			await delay(2000);
+
+			return;
 		});
 	};
 

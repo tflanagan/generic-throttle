@@ -19,18 +19,18 @@ test('limit throttle to 5 executions at a time', async (t) => {
 	const active: number[] = [];
 
 	const async = async (i: number) => {
-		await throttle.acquire(async (resolve, reject) => {
+		await throttle.acquire(async () => {
 			active.push(i);
 	
 			await delay(2000);
 	
 			if(active.length > 5){
-				return reject(new Error('Too many executions at once: ' + active.length));
+				throw new Error('Too many executions at once: ' + active.length);
 			}
 	
 			active.splice(active.indexOf(i), 1);
 
-			resolve();
+			return;
 		});
 	};
 
@@ -51,10 +51,10 @@ test('fail if more than 5 executions at a time', async (t) => {
 	const throttle = new Throttle(5, -1, true);
 
 	const async = async () => {
-		await throttle.acquire(async (resolve) => {
+		await throttle.acquire(async () => {
 			await delay(2000);
 
-			resolve();
+			return;
 		});
 	};
 

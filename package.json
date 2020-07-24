@@ -1,6 +1,6 @@
 {
   "name": "generic-throttle",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "description": "A lightweight, flexible promise based throttle class perfect for any rate or concurrency limiting need",
   "keywords": [
     "throttle",
@@ -48,15 +48,15 @@
     "url": "git://github.com/tflanagan/generic-throttle.git"
   },
   "dependencies": {
-    "@types/node": "^13.9.1"
+    "@types/node": "^13.13.15"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
-    "ava": "^3.5.0",
-    "browserify": "^16.5.0",
+    "ava": "^3.10.1",
+    "browserify": "^16.5.1",
     "minify": "^5.1.0",
-    "ts-node": "^8.6.2",
-    "typedoc": "^0.17.0",
-    "typescript": "^3.8.3"
+    "ts-node": "^8.10.2",
+    "typedoc": "^0.17.8",
+    "typescript": "^3.9.7"
   }
 }

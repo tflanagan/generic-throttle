@@ -1,7 +1,11 @@
 'use strict';
 
 /* Types */
-type AcquireCallback = (resolve: (thenableOrResult?: any) => void, reject: (error?: any) => void) => any;
+type PendingRequest = {
+	resolve: Function;
+	reject: Function;
+	fn: Function;
+};
 
 /* Throttle */
 export class Throttle {
@@ -9,30 +13,63 @@ export class Throttle {
 	protected _tick: NodeJS.Timeout | undefined = undefined;
 	protected _nRequests: number = 0;
 	protected _times: number[] = [];
-	protected _pending: {
-		resolve: Function,
-		reject: Function
-	}[] = [];
+	protected _pending: PendingRequest[] = [];
 
+	/**
+	 * 
+	 * @param requestsPerPeriod Number of requests to execute in given period
+	 * @param periodLength Number of milliseconds in period, set to -1 for concurrency
+	 * @param errorOnLimit Error if number of requests exceeds limits
+	 * @param PromiseImplementation Promise library of your choice
+	 */
 	constructor(
 		public requestsPerPeriod: number = 10,
 		public periodLength: number = -1,
-		public errorOnLimit: boolean = false
+		public errorOnLimit: boolean = false,
+		public PromiseImplementation: PromiseConstructorLike = Promise
 	){
 		return this;
 	}
 
-	private _testTick() {
-		if(this.periodLength === -1){
+	private async _execute(): Promise<void> {
+		const active = this._pending.shift();
+
+		if(!active){
+			return;
+		}
+
+		try {
+			++this._nRequests;
+
+			const results = await active.fn();
+
 			--this._nRequests;
 
-			if(this._nRequests < this.requestsPerPeriod && this._pending.length > 0){
-				++this._nRequests;
+			active.resolve(results);
+		}catch(err){
+			--this._nRequests;
 
-				this._pending.shift()!.resolve();
+			active.reject(err);
+		}finally{
+			await this._testTick();
+		}
+	}
+
+	private async _testTick(): Promise<void> {
+		if(this._pending.length === 0){
+			return;
+		}
+
+		if(this.periodLength === -1){
+			if(this._nRequests >= this.requestsPerPeriod){
+				if(this.errorOnLimit){
+					throw new Error('Throttle Maximum Reached');
+				}
+
+				return;
 			}
 
-			return;
+			return this._execute();
 		}
 
 		const cutOff = Date.now() - this.periodLength;
@@ -42,54 +79,67 @@ export class Throttle {
 		}).sort();
 
 		if(this._times.length < this.requestsPerPeriod){
-			if(this._pending.length > 0){
-				this._times.push(Date.now());
+			this._times.push(Date.now());
 
-				this._pending.shift()!.resolve();
-			}
-		}else{
-			if(this._tick){
-				clearTimeout(this._tick);
-			}
-
-			this._tick = setTimeout(() => {
-				this._testTick();
-			}, this._times[0] - cutOff);
+			return this._execute();
 		}
+
+		if(this.errorOnLimit){
+			throw new Error('Throttle Maximum Reached');
+		}
+
+		if(this._tick){
+			clearTimeout(this._tick);
+		}
+
+		this._tick = setTimeout(() => {
+			this._testTick();
+		}, this._times[0] - cutOff);
 	}
 
 	/**
 	 * Acquire position in queue
+	 * 
+	 * @param fn Function to execute
+	 * 
+	 * @returns Promise<any>
+	 * 
+	 * Example (async/await):
+	 * ```typescript
+	 * const results = await throttle.acquire(async () => {
+	 *     // do some async work
+	 * 
+	 *     return { hello: 'world' };
+	 * });
+	 * 
+	 * console.log(results); // { hello: 'world' }
+	 * ```
+	 * 
+	 * Example (Promises):
+	 * ```typescript
+	 * return throttle.acquire(() => {
+	 *     // do some work
+	 * 
+	 *     return { hello: 'world' };
+	 * }).then((results) => {
+	 *     console.log(results); // { hello: 'world' }
+	 * });
+	 * ```
 	 */
-	async acquire(fn: AcquireCallback) {
-		try {
-			await new Promise((resolve, reject) => {
-				if(this.periodLength === -1){
-					if(this._nRequests < this.requestsPerPeriod || this.requestsPerPeriod === -1){
-						++this._nRequests
-
-						return resolve();
-					}
-				}else
-				if(this._times.length < this.requestsPerPeriod){
-					this._times.push(Date.now());
-
-					return resolve();
-				}
-
-				if(this.errorOnLimit){
-					return reject(new Error('Throttle Maximum Reached'));
-				}
-
-				this._pending.push({
-					resolve: resolve,
-					reject: reject
-				});
+	async acquire(fn: Function) {
+		return new this.PromiseImplementation(async (resolve, reject) => {
+			this._pending.push({
+				resolve: resolve,
+				reject: reject,
+				fn: fn
 			});
-			return await new Promise(fn);
-	 	} finally {
-			this._testTick();
-		}
+
+			try {
+				await this._testTick();
+			}catch(err){
+				reject(err);
+			}
+		});
 	}
 
 	/**

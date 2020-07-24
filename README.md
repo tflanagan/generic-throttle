@@ -46,10 +46,10 @@ function delay(){
 }
 
 function asyncRequest(i){
-	return throttle.acquire((resolve, reject) => {
+	return throttle.acquire(() => {
 		console.log('%d does some async request', i);
 
-		return delay().then(resolve).catch(reject);
+		return delay();
 	}).then(function(){
 		console.log('%d finished', i);
 	});
@@ -81,10 +81,10 @@ function delay(){
 }
 
 function asyncRequest(i){
-	return throttle.acquire((resolve, reject) => {
+	return throttle.acquire(() => {
 		console.log('%d does some async request', i);
 
-		return delay().then(resolve).catch(reject);
+		return delay();
 	}).then(function(){
 		console.log('%d finished', i);
 	});
