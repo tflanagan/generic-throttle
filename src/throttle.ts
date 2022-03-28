@@ -102,7 +102,7 @@ export class Throttle {
 	 * 
 	 * @param fn Function to execute
 	 * 
-	 * @returns Promise<any>
+	 * @returns Promise<T>
 	 * 
 	 * Example (async/await):
 	 * ```typescript
@@ -126,7 +126,7 @@ export class Throttle {
 	 * });
 	 * ```
 	 */
-	async acquire(fn: Function): Promise<any> {
+	async acquire<T = any>(fn: () => T): Promise<T> {
 		return new this.PromiseImplementation(async (resolve, reject) => {
 			this._pending.push({
 				resolve: resolve,
