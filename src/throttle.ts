@@ -4,7 +4,7 @@
 type PendingRequest = {
 	resolve: Function;
 	reject: Function;
-	fn: Function;
+	fn?: Function;
 };
 
 /* Throttle */
@@ -41,7 +41,7 @@ export class Throttle {
 		try {
 			++this._nRequests;
 
-			const results = await active.fn();
+			const results = active.fn ? await active.fn() : undefined;
 
 			--this._nRequests;
 
@@ -126,7 +126,7 @@ export class Throttle {
 	 * });
 	 * ```
 	 */
-	async acquire<T = any>(fn: () => T): Promise<T> {
+	async acquire<T = any>(fn?: () => T): Promise<T> {
 		return new this.PromiseImplementation(async (resolve, reject) => {
 			this._pending.push({
 				resolve: resolve,
